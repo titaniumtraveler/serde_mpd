@@ -1,0 +1,9 @@
+[package]
+name = "serde_mpd"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[dependencies]
+serde = "1.0.197"
