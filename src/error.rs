@@ -1,30 +1,40 @@
 use std::{
-    fmt::Display,
-    io::{self, ErrorKind::WouldBlock},
+    fmt::{self, Display, Formatter},
+    io,
 };
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
-pub struct Error(Inner);
+pub struct Error(ErrorCode);
 
 #[derive(Debug)]
-enum Inner {
+pub enum ErrorCode {
     Message(String),
-    WouldBlock,
+    Io(io::Error),
+    UnexpectedEof,
+    ExpectedSomeIdent,
+    ExpectedNewline,
 }
 
-impl Inner {
-    fn custom<T: Display>(msg: T) -> Self {
-        Self::Message(msg.to_string())
+impl Error {
+    pub fn error(reason: ErrorCode) -> Self {
+        Self(reason)
+    }
+
+    pub fn would_block() -> Self {
+        Error::error(ErrorCode::Io(io::ErrorKind::WouldBlock.into()))
     }
 }
 
 impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match &self.0 {
-            Inner::Message(msg) => <String as Display>::fmt(&msg, f),
-            Inner::WouldBlock => write!(f, "operation would block"),
+            ErrorCode::Message(msg) => f.write_str(&msg),
+            ErrorCode::Io(io) => Display::fmt(io, f),
+            ErrorCode::UnexpectedEof => f.write_str("unexpected eof"),
+            ErrorCode::ExpectedSomeIdent => f.write_str("expected ident"),
+            ErrorCode::ExpectedNewline => f.write_str("expected newline character"),
         }
     }
 }
@@ -36,15 +46,12 @@ impl serde::de::Error for Error {
     where
         T: Display,
     {
-        Self(Inner::Message(msg.to_string()))
+        Self::error(ErrorCode::Message(msg.to_string()))
     }
 }
 
 impl From<io::Error> for Error {
     fn from(value: io::Error) -> Self {
-        match value.kind() {
-            WouldBlock => Self(Inner::WouldBlock),
-            _ => Self(Inner::custom(value)),
-        }
+        Self::error(ErrorCode::Io(value))
     }
 }
