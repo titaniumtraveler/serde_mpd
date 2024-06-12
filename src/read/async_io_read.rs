@@ -11,7 +11,7 @@ use std::{
 };
 use tokio::io::{AsyncRead, ReadBuf};
 
-pub struct AsyncIoReader<'o, 'i, 'r, R>
+pub struct AsyncIoRead<'o, 'i, 'r, R>
 where
     R: AsyncRead,
 {
@@ -20,7 +20,7 @@ where
     peek: Option<u8>,
 }
 
-impl<'o, 'i, 'r, R> AsyncIoReader<'o, 'i, 'r, R>
+impl<'o, 'i, 'r, R> AsyncIoRead<'o, 'i, 'r, R>
 where
     R: AsyncRead,
 {
@@ -36,9 +36,9 @@ where
         let mut buf = [0; 1];
         let mut buf = ReadBuf::new(&mut buf);
         match self.reader.as_mut().poll_read(self.context, &mut buf) {
-            Poll::Pending => Err(Error::error(ErrorCode::Io(ErrorKind::WouldBlock.into()))),
+            Poll::Pending => Err(Error::new(ErrorCode::Io(ErrorKind::WouldBlock.into()))),
             Poll::Ready(Ok(_)) => {
-                if buf.filled().len() == 0 {
+                if buf.filled().is_empty() {
                     return Ok(None);
                 }
 
@@ -49,7 +49,7 @@ where
     }
 }
 
-impl<'de, 'o, 'i, 'r, R> Read<'de> for AsyncIoReader<'o, 'i, 'r, R>
+impl<'de, 'o, 'i, 'r, R> Read<'de> for AsyncIoRead<'o, 'i, 'r, R>
 where
     R: AsyncRead,
 {
@@ -81,7 +81,7 @@ where
     ) -> Result<Reference<'de, 's, [u8]>> {
         loop {
             let Some(peek) = self.peek()? else {
-                return Err(Error::error(ErrorCode::UnexpectedEof));
+                return Err(Error::new(ErrorCode::UnexpectedEof));
             };
 
             if peek != until {
@@ -110,11 +110,11 @@ where
                     if buf.filled().len() == len {
                         break;
                     } else {
-                        return Err((buf.filled().len(), Error::error(ErrorCode::UnexpectedEof)));
+                        return Err((buf.filled().len(), Error::new(ErrorCode::UnexpectedEof)));
                     }
                 }
                 Ok(_) => {}
-                Err(err) => return Err((buf.filled().len(), Error::error(ErrorCode::Io(err)))),
+                Err(err) => return Err((buf.filled().len(), Error::new(ErrorCode::Io(err)))),
             }
         }
 

@@ -26,7 +26,7 @@ impl<'de> Read<'de> for SliceRead<'de> {
     }
 
     fn peek(&mut self) -> crate::Result<Option<u8>> {
-        Ok(self.slice.get(0).copied())
+        Ok(self.slice.first().copied())
     }
 
     fn discard(&mut self) {
@@ -49,7 +49,7 @@ impl<'de> Read<'de> for SliceRead<'de> {
         }
 
         if index == self.slice.len() {
-            return Err(Error::error(ErrorCode::UnexpectedEof));
+            return Err(Error::new(ErrorCode::UnexpectedEof));
         }
 
         let slice = &self.slice[0..index];
@@ -67,7 +67,7 @@ impl<'de> Read<'de> for SliceRead<'de> {
             self.slice = &self.slice[len..];
             Ok(Reference::Borrowed(slice))
         } else {
-            Err((0, Error::error(ErrorCode::UnexpectedEof)))
+            Err((0, Error::new(ErrorCode::UnexpectedEof)))
         }
     }
 }

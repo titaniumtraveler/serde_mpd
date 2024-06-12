@@ -1,4 +1,6 @@
-use crate::{error::ErrorCode, Error, Result};
+use crate::{Error, Result};
+
+pub use self::{async_io_read::AsyncIoRead, slice_read::SliceRead};
 
 mod async_io_read;
 mod slice_read;
@@ -40,4 +42,16 @@ where
 {
     Borrowed(&'de T),
     Copied(&'s T),
+}
+
+impl<'de, 's, T: ?Sized> Reference<'de, 's, T> {
+    pub fn as_ref<'a>(&self) -> &'a T
+    where
+        'de: 'a,
+        's: 'a,
+    {
+        match self {
+            Reference::Borrowed(t) | Reference::Copied(t) => t,
+        }
+    }
 }
