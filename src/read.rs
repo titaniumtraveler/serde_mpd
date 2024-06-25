@@ -1,5 +1,9 @@
 use crate::{Error, Result};
 
+pub use self::slice::Slice;
+
+mod slice;
+
 pub trait Read<'de> {
     fn peek(&mut self) -> Result<Option<u8>>;
     fn next(&mut self) -> Result<Option<u8>>;

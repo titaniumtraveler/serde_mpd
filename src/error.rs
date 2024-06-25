@@ -11,6 +11,7 @@ pub enum Error {
     Io(io::Error),
     /// Some IO operation is pending. If this error is thrown it is safe to retry the operation.
     Pending,
+    Eof,
 }
 
 impl Display for Error {
@@ -20,6 +21,7 @@ impl Display for Error {
             Custom(str) => f.write_str(str),
             Io(io) => Display::fmt(&io, f),
             Pending => f.write_str("io operations are pending"),
+            Eof => f.write_str("unexpected end of file"),
         }
     }
 }
