@@ -7,12 +7,12 @@ pub trait Read<'de> {
 
     fn read_until<'s>(
         &mut self,
-        scratch: &mut Vec<u8>,
+        scratch: &'s mut Vec<u8>,
         until: u8,
     ) -> Result<Reference<'de, 's, [u8]>>;
     fn read_len<'s>(
         &mut self,
-        scratch: &mut Vec<u8>,
+        scratch: &'s mut Vec<u8>,
         len: usize,
     ) -> std::result::Result<Reference<'de, 's, [u8]>, (usize, Error)>;
 
