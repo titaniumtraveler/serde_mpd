@@ -1,7 +1,8 @@
 use crate::{Error, Result};
 
-pub use self::slice::Slice;
+pub use self::{interupt_slice::InteruptSlice, slice::Slice};
 
+mod interupt_slice;
 mod slice;
 
 pub trait Read<'de> {
