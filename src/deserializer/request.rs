@@ -1,6 +1,7 @@
 use crate::{read::Read, Error};
 use serde::{de::Visitor, forward_to_deserialize_any, Deserializer};
 
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct RequestDeserializer<R> {
     read: R,
     scratch: Vec<u8>,

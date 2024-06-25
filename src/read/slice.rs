@@ -3,6 +3,7 @@ use crate::{
     Error,
 };
 
+#[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default, Clone, Copy)]
 pub struct Slice<'de> {
     pub src: &'de [u8],
 }

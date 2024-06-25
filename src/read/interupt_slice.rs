@@ -3,6 +3,7 @@ use crate::{
     Error,
 };
 
+#[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct InteruptSlice<'a, 'de> {
     pub src: &'a mut [&'de [u8]],
 }
