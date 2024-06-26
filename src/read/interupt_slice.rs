@@ -149,6 +149,10 @@ impl<'a, 'de> Read<'de> for InteruptSlice<'a, 'de> {
     ) -> crate::Result<bool> {
         if !scratch.is_empty() {
             if let Some(remaining) = starts_with.strip_prefix(scratch.as_slice()) {
+                if remaining.is_empty() {
+                    scratch.clear();
+                    return Ok(true);
+                }
                 starts_with = remaining;
             } else {
                 return Ok(false);
@@ -157,14 +161,18 @@ impl<'a, 'de> Read<'de> for InteruptSlice<'a, 'de> {
 
         if let Some(head) = self.src.first_mut() {
             if head.len() < starts_with.len() {
-                let (head, tail) = std::mem::take(&mut self.src)
-                    .split_first_mut()
-                    .expect("expected head to exist");
+                if *head != &starts_with[..head.len()] {
+                    Ok(false)
+                } else {
+                    let (head, tail) = std::mem::take(&mut self.src)
+                        .split_first_mut()
+                        .expect("expected head to exist");
 
-                scratch.extend_from_slice(head);
-                self.src = tail;
+                    scratch.extend_from_slice(head);
+                    self.src = tail;
 
-                Err(Error::Pending)
+                    Err(Error::Pending)
+                }
             } else {
                 if let Some(remaining) = head.strip_prefix(starts_with) {
                     *head = remaining;
