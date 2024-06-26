@@ -1,6 +1,9 @@
 use crate::{read::Read, Error};
 use serde::{de::Visitor, forward_to_deserialize_any, Deserializer};
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct RequestDeserializer<R> {
     read: R,
@@ -13,6 +16,16 @@ enum DeserializerState {
     #[default]
     None,
     IgnoreAnyAck,
+}
+
+impl<'de, R: Read<'de>> RequestDeserializer<R> {
+    pub fn from_read(read: R) -> Self {
+        RequestDeserializer {
+            read,
+            scratch: Vec::new(),
+            state: DeserializerState::None,
+        }
+    }
 }
 
 impl<'de, R: Read<'de>> Deserializer<'de> for &mut RequestDeserializer<R> {
