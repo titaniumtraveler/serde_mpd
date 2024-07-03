@@ -1,11 +1,18 @@
 use crate::{
-    read::{Read, Reference},
+    read::{Read, Reference, SliceDebug},
     Error,
 };
+use std::fmt::{Debug, Formatter};
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default, Clone, Copy)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Default, Clone, Copy)]
 pub struct Slice<'de> {
     pub src: &'de [u8],
+}
+
+impl Debug for Slice<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(&SliceDebug(self.src), f)
+    }
 }
 
 impl<'de> Read<'de> for Slice<'de> {

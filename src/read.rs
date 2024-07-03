@@ -1,9 +1,10 @@
 use crate::{Error, Result};
 
-pub use self::{interupt_slice::InteruptSlice, slice::Slice};
+pub use self::{interupt_slice::InteruptSlice, slice::Slice, util::SliceDebug};
 
 mod interupt_slice;
 mod slice;
+mod util;
 
 pub trait Read<'de> {
     fn peek(&mut self) -> Result<Option<u8>>;
